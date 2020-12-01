@@ -2,6 +2,7 @@ from django.shortcuts import render
 
 # Create your views here.
 
+from sklearn import metrics
 
 #Import necessary libraries
 import pickle
@@ -69,17 +70,18 @@ def kmeansClustering(X, n_clusters):
     kmeans = KMeans(n_clusters)
     kmeans.fit(X)
     y_kmeans = kmeans.predict(X)
+    silhouette_score=metrics.silhouette_score(X, y_kmeans)
     
-    return y_kmeans, kmeans.inertia_
+    return y_kmeans, kmeans.inertia_, silhouette_score
 
 def train_model(data,k):
     # load dataset
 
     X = data
-    y_kmeans, ssd_kmeans = kmeansClustering(X, n_clusters=k)
+    y_kmeans, ssd_kmeans, silhouette_score = kmeansClustering(X, n_clusters=k)
     pickle.dump(y_kmeans,open("ml_model/kmeans_result.pkl", "wb"))
 
-    return y_kmeans, ssd_kmeans
+    return y_kmeans, ssd_kmeans, silhouette_score
 
 import json
 
@@ -101,12 +103,13 @@ def kmeans(request):
             print("k",k)
             train_data = np.array(train_data)
             print("train_data",train_data)
-            y_kmeans, ssd_kmeans = train_model(train_data,k)
+            y_kmeans, ssd_kmeans, silhouette_score = train_model(train_data,k)
             predictions = {
                 'error' : '0',
                 'message' : 'Successfull',
                 'y_kmeans' : y_kmeans,
-                'ssd_kmeans' : ssd_kmeans
+                'ssd' : ssd_kmeans,
+                'silhouette_score' : silhouette_score
             }
         else:
             predictions = {
