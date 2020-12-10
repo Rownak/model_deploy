@@ -180,3 +180,53 @@ def db_scan(request):
         }
     
     return Response(predictions)
+
+from sklearn.cluster import AgglomerativeClustering
+def agg_clustering(X,n_clusters ):
+    model = AgglomerativeClustering(n_clusters)
+    y_agg = model.fit_predict(X)
+
+    silhouette_score=metrics.silhouette_score(X, y_agg)
+
+    pickle.dump(y_agg,open("ml_model/agglomerative_result.pkl", "wb"))
+    return y_agg, silhouette_score
+
+@api_view(["POST"])
+def agglomerative(request):
+    try:
+        #k = request.data.get('k',2)
+        data = json.loads(request.body)
+        print("data", data)
+        #train_data = request.GET.get('data', [[1,1],[1,2],[2,1],[2,2],[10,10],[10,11],[11,10],[11,11]])
+        n_clusters = data['n_clusters']
+        train_data = data['train']
+        #train_data = request.GET.get('data')
+        fields = [n_clusters,train_data]
+        print("fields",fields)
+        if n_clusters is not None:
+            #Datapreprocessing Convert the values to float
+            n_clusters = int(n_clusters)
+            print("n_clusters",n_clusters)
+            train_data = np.array(train_data)
+            train_data = list(filter(any,train_data))
+            train_data = [list(filter(None, lst)) for lst in train_data]
+            print("train_data",train_data)
+            y_agg, silhouette_score = agg_clustering(train_data,n_clusters)
+            predictions = {
+                'error' : '0',
+                'message' : 'Successfull',
+                'y_kmeans' : y_agg.reshape(-1,1),
+                'silhouette_score' : silhouette_score
+            }
+        else:
+            predictions = {
+                'error' : '1',
+                'message': 'Invalid Parameters'                
+            }
+    except Exception as e:
+        predictions = {
+            'error' : '2',
+            "message": str(e)
+        }
+    
+    return Response(predictions)

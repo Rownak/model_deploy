@@ -6,4 +6,5 @@ urlpatterns = [
     path('predict', views.predict_diabetictype),
     path('kmeans', views.kmeans),
     path('db_scan', views.db_scan),
+    path('agglomerative', views.agglomerative),
 ]
