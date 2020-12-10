@@ -21,7 +21,7 @@ def index_page(request):
     return Response(return_data)
 
 @api_view(["POST"])
-def predict_diabetictype(request):
+def predict_diabetictype(request): 
     try:
         age = request.data.get('age',60)
         bs_fast = request.data.get('bs_fast',4.6)
@@ -74,7 +74,7 @@ def kmeansClustering(X, n_clusters):
     
     return y_kmeans, kmeans.inertia_, silhouette_score
 
-def train_model(data,k):
+def train_knn_model(data,k):
     # load dataset
 
     X = data
@@ -103,12 +103,67 @@ def kmeans(request):
             print("k",k)
             train_data = np.array(train_data)
             print("train_data",train_data)
-            y_kmeans, ssd_kmeans, silhouette_score = train_model(train_data,k)
+            y_kmeans, ssd_kmeans, silhouette_score = train_knn_model(train_data,k)
             predictions = {
                 'error' : '0',
                 'message' : 'Successfull',
                 'y_kmeans' : y_kmeans,
                 'ssd' : ssd_kmeans,
+                'silhouette_score' : silhouette_score
+            }
+        else:
+            predictions = {
+                'error' : '1',
+                'message': 'Invalid Parameters'                
+            }
+    except Exception as e:
+        predictions = {
+            'error' : '2',
+            "message": str(e)
+        }
+    
+    return Response(predictions)
+
+
+from sklearn.cluster import DBSCAN
+def dbscan_cluster(X, eps, min_samples):
+    
+    model = DBSCAN(eps, min_samples)
+    # fit model and predict clusters
+    y_db = model.fit_predict(X)
+
+    silhouette_score=metrics.silhouette_score(X, y_db)
+
+    pickle.dump(y_db,open("ml_model/dbscan_result.pkl", "wb"))
+
+    return y_db, silhouette_score
+
+@api_view(["POST"])
+def db_scan(request):
+    try:
+        #k = request.data.get('k',2)
+        data = json.loads(request.body)
+        print("data", data)
+        #train_data = request.GET.get('data', [[1,1],[1,2],[2,1],[2,2],[10,10],[10,11],[11,10],[11,11]])
+        eps = data['eps']
+        min_samples = data['min_samples']
+        train_data = data['train']
+        #train_data = request.GET.get('data')
+        fields = [eps, min_samples,train_data]
+        print("fields",fields)
+        if eps is not None:
+            #Datapreprocessing Convert the values to float
+            eps = float(eps)
+            print("eps",eps)
+            min_samples = int(min_samples)
+            print("min_samples",min_samples)
+            train_data = np.array(train_data)
+            print("train_data",train_data)
+            y_db, silhouette_score = dbscan_cluster(train_data,eps, min_samples)
+            predictions = {
+                'error' : '0',
+                'message' : 'Successfull',
+                'y_db' : y_db.reshape(-1,1),
                 'silhouette_score' : silhouette_score
             }
         else:

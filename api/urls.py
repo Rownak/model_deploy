@@ -5,4 +5,5 @@ urlpatterns = [
     path('',views.index_page),
     path('predict', views.predict_diabetictype),
     path('kmeans', views.kmeans),
+    path('db_scan', views.db_scan),
 ]
