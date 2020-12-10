@@ -102,12 +102,14 @@ def kmeans(request):
             k = int(k)
             print("k",k)
             train_data = np.array(train_data)
+            train_data = list(filter(any,train_data))
+            train_data = [list(filter(None, lst)) for lst in train_data]
             print("train_data",train_data)
             y_kmeans, ssd_kmeans, silhouette_score = train_model(train_data,k)
             predictions = {
                 'error' : '0',
                 'message' : 'Successfull',
-                'y_kmeans' : y_kmeans,
+                'y_kmeans' : y_kmeans.reshape(-1,1),
                 'ssd' : ssd_kmeans,
                 'silhouette_score' : silhouette_score
             }
