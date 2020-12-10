@@ -125,7 +125,6 @@ def kmeans(request):
         }
     
     return Response(predictions)
-<<<<<<< HEAD
 
 
 from sklearn.cluster import DBSCAN
@@ -181,5 +180,3 @@ def db_scan(request):
         }
     
     return Response(predictions)
-=======
->>>>>>> 0bf98736acf0c55e7795785736e58f0396bfcb19
