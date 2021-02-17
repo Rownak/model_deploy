@@ -1,10 +1,10 @@
 from django.urls import path
-from api import views
+from api.clustering_algorithms import kmeans
+from api.clustering_algorithms import dbscan
+from api.clustering_algorithms import agglomerative
 
 urlpatterns = [
-    path('',views.index_page),
-    path('predict', views.predict_diabetictype),
-    path('kmeans', views.kmeans),
-    path('db_scan', views.db_scan),
-    path('agglomerative', views.agglomerative),
+    path('kmeans', kmeans.get_kmeans),
+    path('db_scan', dbscan.get_dbscan),
+    path('agglomerative', agglomerative.get_agglomerative)
 ]

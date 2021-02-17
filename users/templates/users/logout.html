@@ -1,0 +1,16 @@
+{% block content %}
+
+<!--crispy forms will allow us to put some simple tag in our templat
+	that will allow us to style our form in bootstrap fashion and other
+	css framework could be use crispy form
+
+ -->
+
+    <h2>You have been logged out</h2>
+    <div class="border-top pt-3">
+        <small class="text-muted">
+            Already Have An Account? <a class="ml-2" href={% url 'login' %}>Sign In</a>
+        </small>
+    </div>
+
+{% endblock content %}

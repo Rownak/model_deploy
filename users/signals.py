@@ -1,0 +1,21 @@
+from django.db.models.signals import post_save
+# User going to send the signal
+from django.contrib.auth.models import User
+
+# reciever that gets signal and do some task
+
+from django.dispatch import  receiver
+from .models import Profile
+
+#decorator post_save- signal and sender- user
+# when a sender send a signal (post_save) this decorator recieve it and the reciever is the fucntion
+#
+@receiver(post_save, sender=User)
+def create_profile(sender, instance, created, **kwargs):
+	if created:
+		Profile.objects.create(user=instance)
+
+# kwargs recieve any additional argument at the end of the function
+@receiver(post_save, sender=User)
+def save_profile(sender, instance, **kwargs):
+	instance.profile.save()
